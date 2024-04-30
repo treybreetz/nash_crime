@@ -52,6 +52,7 @@
     <div id="filter-container" class="filter-container"></div>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
     <script>
         let map;
         let markers = [];
@@ -60,10 +61,7 @@
         // Fetch data from the JSON API
         fetch('https://data.nashville.gov/resource/qywv-8sc2.json')
             .then(response => response.json())
-            .then(data => {
-                console.log(data); // Log the data received from the API
-                initializeMap(data);
-            })
+            .then(data => initializeMap(data))
             .catch(error => console.error('Error fetching data:', error));
 
         function initializeMap(data) {
@@ -75,7 +73,7 @@
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            // Add markers to the map for each incident
+            // Loop through each incident and add a marker for it
             data.forEach(incident => addMarker(incident));
 
             // Create filter checkboxes
@@ -125,24 +123,19 @@
         }
 
         function createFilterCheckboxes() {
-            const uniqueTypes = [...new Set(markers.map(marker => {
-                const popupContent = marker.getPopup().getContent();
-                const type = popupContent.match(/Incident Type:<\/b> (.*)/);
-                console.log('Type:', type);
-                return type ? type[1] : null;
-            }))];
+            const uniqueDescriptions = [...new Set(markers.map(marker => marker.getPopup().getContent().match(/Incident Type:<\/b> (.*)/)[1]))];
 
-            uniqueTypes.forEach((type) => {
+            uniqueDescriptions.forEach((description) => {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.checked = true;
-                checkbox.id = type;
+                checkbox.id = description;
                 checkbox.className = 'filter-checkbox';
                 checkbox.addEventListener('change', toggleMarkers);
 
                 const label = document.createElement('label');
-                label.htmlFor = type;
-                label.textContent = type;
+                label.htmlFor = description;
+                label.textContent = description;
                 label.className = 'filter-label';
 
                 filterContainer.appendChild(checkbox);
@@ -169,8 +162,8 @@
         function toggleMarkers() {
             markers.forEach((marker) => {
                 const popupContent = marker.getPopup().getContent();
-                const type = popupContent.match(/Incident Type:<\/b> (.*)/);
-                const checkbox = document.getElementById(type[1]);
+                const description = popupContent.match(/Incident Type:<\/b> (.*)/)[1];
+                const checkbox = document.getElementById(description);
 
                 // Toggle marker visibility based on checkbox state
                 marker.setOpacity(checkbox.checked ? 1 : 0);
