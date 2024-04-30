@@ -68,6 +68,7 @@
 
         function initializeMap(data) {
             // Initialize the map
+            console.log("Initializing map...");
             map = L.map('map').setView([36.1627, -86.7816], 12);
 
             // Add a tile layer (you can choose different providers)
@@ -90,6 +91,7 @@
 
                             // Check if latitude and longitude are valid numbers
                             if (!isNaN(latitude) && !isNaN(longitude)) {
+                                console.log("Adding marker for:", address);
                                 const marker = L.marker([latitude, longitude]).addTo(map);
                                 markers.push(marker);
 
@@ -170,4 +172,5 @@
     </script>
 </body>
 </html>
+
 
