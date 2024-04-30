@@ -79,14 +79,14 @@
             data.forEach((call) => {
                 const address = call.address;
 
-                // Geocode address to get latitude and longitude using HERE Geocoding API
-                fetch(`https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(address)}&apiKey=YOUR_HERE_API_KEY`)
+                // Geocode address to get latitude and longitude using OpenCage Geocoding API
+                fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=YOUR_OPENCAGE_API_KEY`)
                     .then(response => response.json())
                     .then(geoData => {
                         console.log('Geocoding result:', geoData); // Log geocoding result
-                        if (geoData.items && geoData.items.length > 0) {
-                            const latitude = geoData.items[0].position.lat;
-                            const longitude = geoData.items[0].position.lng;
+                        if (geoData.results && geoData.results.length > 0) {
+                            const latitude = geoData.results[0].geometry.lat;
+                            const longitude = geoData.results[0].geometry.lng;
 
                             // Check if latitude and longitude are valid numbers
                             if (!isNaN(latitude) && !isNaN(longitude)) {
@@ -171,7 +171,6 @@
     </script>
 </body>
 </html>
-
 
 
 
