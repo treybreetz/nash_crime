@@ -77,16 +77,16 @@
 
             // Add markers to the map
             data.forEach((call) => {
-                const address = call.display_name;
+                const address = call.address;
 
-                // Geocode address to get latitude and longitude using OpenStreetMap Nominatim API
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+                // Geocode address to get latitude and longitude using HERE Geocoding API
+                fetch(`https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(address)}&apiKey=YOUR_HERE_API_KEY`)
                     .then(response => response.json())
                     .then(geoData => {
                         console.log('Geocoding result:', geoData); // Log geocoding result
-                        if (geoData && geoData.length > 0) {
-                            const latitude = parseFloat(geoData[0].lat);
-                            const longitude = parseFloat(geoData[0].lon);
+                        if (geoData.items && geoData.items.length > 0) {
+                            const latitude = geoData.items[0].position.lat;
+                            const longitude = geoData.items[0].position.lng;
 
                             // Check if latitude and longitude are valid numbers
                             if (!isNaN(latitude) && !isNaN(longitude)) {
@@ -97,7 +97,7 @@
                                 // Add popup with information to each marker
                                 marker.bindPopup(`
                                     <b>Address:</b> ${address}<br>
-                                    <b>Tencode Description:</b> ${call.description}
+                                    <b>Incident Type:</b> ${call.incident_type}
                                 `);
                             }
                         }
@@ -113,7 +113,7 @@
         }
 
         function createFilterCheckboxes() {
-            const uniqueDescriptions = [...new Set(markers.map(marker => marker.getPopup().getContent().match(/Description:<\/b> (.*)/)[1]))];
+            const uniqueDescriptions = [...new Set(markers.map(marker => marker.getPopup().getContent().match(/Incident Type:<\/b> (.*)/)[1]))];
 
             uniqueDescriptions.forEach((description) => {
                 const checkbox = document.createElement('input');
@@ -152,7 +152,7 @@
         function toggleMarkers() {
             markers.forEach((marker) => {
                 const popupContent = marker.getPopup().getContent();
-                const description = popupContent.match(/Description:<\/b> (.*)/)[1];
+                const description = popupContent.match(/Incident Type:<\/b> (.*)/)[1];
                 const checkbox = document.getElementById(description);
 
                 // Toggle marker visibility based on checkbox state
@@ -171,6 +171,7 @@
     </script>
 </body>
 </html>
+
 
 
 
