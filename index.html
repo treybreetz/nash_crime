@@ -75,39 +75,36 @@
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            // Geocode all addresses
-            const geocodePromises = data.map(call => geocodeAddress(call.address));
+            // Add markers to the map for each incident
+            data.forEach(incident => addMarker(incident));
 
-            // Wait for all geocoding requests to complete
-            Promise.all(geocodePromises)
-                .then(results => {
-                    // Add markers to the map
-                    results.forEach((result, index) => {
-                        const { latitude, longitude } = result;
-                        const address = data[index].address;
-                        const incidentType = data[index].incident_type;
+            // Create filter checkboxes
+            createFilterCheckboxes();
 
-                        // Check if latitude and longitude are valid numbers
-                        if (!isNaN(latitude) && !isNaN(longitude)) {
-                            console.log("Adding marker for:", address);
-                            const marker = L.marker([latitude, longitude]).addTo(map);
-                            markers.push(marker);
+            // Add select/deselect buttons
+            createSelectButtons();
+        }
 
-                            // Add popup with information to each marker
-                            marker.bindPopup(`
-                                <b>Address:</b> ${address}<br>
-                                <b>Incident Type:</b> ${incidentType}
-                            `);
-                        }
-                    });
+        function addMarker(incident) {
+            const { address, incident_type } = incident;
 
-                    // Create filter checkboxes
-                    createFilterCheckboxes();
+            // Geocode address to get latitude and longitude
+            geocodeAddress(address)
+                .then(({ latitude, longitude }) => {
+                    // Check if latitude and longitude are valid numbers
+                    if (!isNaN(latitude) && !isNaN(longitude)) {
+                        console.log("Adding marker for:", address);
+                        const marker = L.marker([latitude, longitude]).addTo(map);
+                        markers.push(marker);
 
-                    // Add select/deselect buttons
-                    createSelectButtons();
+                        // Add popup with information to each marker
+                        marker.bindPopup(`
+                            <b>Address:</b> ${address}<br>
+                            <b>Incident Type:</b> ${incident_type}
+                        `);
+                    }
                 })
-                .catch(error => console.error('Error geocoding addresses:', error));
+                .catch(error => console.error('Error adding marker:', error));
         }
 
         function geocodeAddress(address) {
@@ -186,6 +183,7 @@
     </script>
 </body>
 </html>
+
 
 
 
