@@ -77,7 +77,7 @@
 
             // Add markers to the map
             data.forEach((call) => {
-                const address = call.full_address;
+                const address = call.display_name;
 
                 // Geocode address to get latitude and longitude
                 fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
@@ -170,3 +170,4 @@
     </script>
 </body>
 </html>
+
