@@ -80,7 +80,7 @@
                 const address = call.address;
 
                 // Geocode address to get latitude and longitude using OpenCage Geocoding API
-                fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=YOUR_OPENCAGE_API_KEY`)
+                fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=9624f2dc7367403e883179705adc45f6`)
                     .then(response => response.json())
                     .then(geoData => {
                         console.log('Geocoding result:', geoData); // Log geocoding result
