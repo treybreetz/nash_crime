@@ -78,6 +78,7 @@
             // Add markers to the map
             data.forEach((call) => {
                 const address = call.address;
+                const incidentType = call.incident_type;
 
                 // Geocode address to get latitude and longitude using OpenCage Geocoding API
                 fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=9624f2dc7367403e883179705adc45f6`)
@@ -97,7 +98,7 @@
                                 // Add popup with information to each marker
                                 marker.bindPopup(`
                                     <b>Address:</b> ${address}<br>
-                                    <b>Incident Type:</b> ${call.incident_type}
+                                    <b>Incident Type:</b> ${incidentType}
                                 `);
                             }
                         }
@@ -113,19 +114,19 @@
         }
 
         function createFilterCheckboxes() {
-            const uniqueDescriptions = [...new Set(markers.map(marker => marker.getPopup().getContent().match(/Incident Type:<\/b> (.*)/)[1]))];
+            const uniqueTypes = [...new Set(markers.map(marker => marker.getPopup().getContent().match(/Incident Type:<\/b> (.*)/)[1]))];
 
-            uniqueDescriptions.forEach((description) => {
+            uniqueTypes.forEach((type) => {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.checked = true;
-                checkbox.id = description;
+                checkbox.id = type;
                 checkbox.className = 'filter-checkbox';
                 checkbox.addEventListener('change', toggleMarkers);
 
                 const label = document.createElement('label');
-                label.htmlFor = description;
-                label.textContent = description;
+                label.htmlFor = type;
+                label.textContent = type;
                 label.className = 'filter-label';
 
                 filterContainer.appendChild(checkbox);
@@ -152,8 +153,8 @@
         function toggleMarkers() {
             markers.forEach((marker) => {
                 const popupContent = marker.getPopup().getContent();
-                const description = popupContent.match(/Incident Type:<\/b> (.*)/)[1];
-                const checkbox = document.getElementById(description);
+                const type = popupContent.match(/Incident Type:<\/b> (.*)/)[1];
+                const checkbox = document.getElementById(type);
 
                 // Toggle marker visibility based on checkbox state
                 marker.setOpacity(checkbox.checked ? 1 : 0);
@@ -171,6 +172,7 @@
     </script>
 </body>
 </html>
+
 
 
 
