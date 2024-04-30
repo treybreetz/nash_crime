@@ -75,42 +75,56 @@
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            // Add markers to the map
-            data.forEach((call) => {
-                const address = call.address;
-                const incidentType = call.incident_type;
+            // Geocode all addresses
+            const geocodePromises = data.map(call => geocodeAddress(call.address));
 
-                // Geocode address to get latitude and longitude using OpenCage Geocoding API
-                fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=9624f2dc7367403e883179705adc45f6`)
-                    .then(response => response.json())
-                    .then(geoData => {
-                        console.log('Geocoding result:', geoData); // Log geocoding result
-                        if (geoData.results && geoData.results.length > 0) {
-                            const latitude = geoData.results[0].geometry.lat;
-                            const longitude = geoData.results[0].geometry.lng;
+            // Wait for all geocoding requests to complete
+            Promise.all(geocodePromises)
+                .then(results => {
+                    // Add markers to the map
+                    results.forEach((result, index) => {
+                        const { latitude, longitude } = result;
+                        const address = data[index].address;
+                        const incidentType = data[index].incident_type;
 
-                            // Check if latitude and longitude are valid numbers
-                            if (!isNaN(latitude) && !isNaN(longitude)) {
-                                console.log("Adding marker for:", address);
-                                const marker = L.marker([latitude, longitude]).addTo(map);
-                                markers.push(marker);
+                        // Check if latitude and longitude are valid numbers
+                        if (!isNaN(latitude) && !isNaN(longitude)) {
+                            console.log("Adding marker for:", address);
+                            const marker = L.marker([latitude, longitude]).addTo(map);
+                            markers.push(marker);
 
-                                // Add popup with information to each marker
-                                marker.bindPopup(`
-                                    <b>Address:</b> ${address}<br>
-                                    <b>Incident Type:</b> ${incidentType}
-                                `);
-                            }
+                            // Add popup with information to each marker
+                            marker.bindPopup(`
+                                <b>Address:</b> ${address}<br>
+                                <b>Incident Type:</b> ${incidentType}
+                            `);
                         }
-                    })
-                    .catch(error => console.error('Error geocoding address:', error));
-            });
+                    });
 
-            // Create filter checkboxes
-            createFilterCheckboxes();
+                    // Create filter checkboxes
+                    createFilterCheckboxes();
 
-            // Add select/deselect buttons
-            createSelectButtons();
+                    // Add select/deselect buttons
+                    createSelectButtons();
+                })
+                .catch(error => console.error('Error geocoding addresses:', error));
+        }
+
+        function geocodeAddress(address) {
+            // Geocode address to get latitude and longitude using OpenCage Geocoding API
+            return fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=9624f2dc7367403e883179705adc45f6`)
+                .then(response => response.json())
+                .then(geoData => {
+                    console.log('Geocoding result:', geoData); // Log geocoding result
+                    if (geoData.results && geoData.results.length > 0) {
+                        return {
+                            latitude: geoData.results[0].geometry.lat,
+                            longitude: geoData.results[0].geometry.lng
+                        };
+                    } else {
+                        throw new Error('No results found for address:', address);
+                    }
+                });
         }
 
         function createFilterCheckboxes() {
@@ -172,7 +186,6 @@
     </script>
 </body>
 </html>
-
 
 
 
