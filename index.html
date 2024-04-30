@@ -125,7 +125,12 @@
         }
 
         function createFilterCheckboxes() {
-            const uniqueTypes = [...new Set(markers.map(marker => marker.getPopup().getContent().match(/Incident Type:<\/b> (.*)/)[1]))];
+            const uniqueTypes = [...new Set(markers.map(marker => {
+                const popupContent = marker.getPopup().getContent();
+                const type = popupContent.match(/Incident Type:<\/b> (.*)/);
+                console.log('Type:', type);
+                return type ? type[1] : null;
+            }))];
 
             uniqueTypes.forEach((type) => {
                 const checkbox = document.createElement('input');
@@ -164,8 +169,8 @@
         function toggleMarkers() {
             markers.forEach((marker) => {
                 const popupContent = marker.getPopup().getContent();
-                const type = popupContent.match(/Incident Type:<\/b> (.*)/)[1];
-                const checkbox = document.getElementById(type);
+                const type = popupContent.match(/Incident Type:<\/b> (.*)/);
+                const checkbox = document.getElementById(type[1]);
 
                 // Toggle marker visibility based on checkbox state
                 marker.setOpacity(checkbox.checked ? 1 : 0);
